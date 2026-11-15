@@ -34,3 +34,20 @@ docker build --target production --build-arg GIT_COMMIT=$(git rev-parse --short 
     --build-arg APP_VERSION=$(cat VERSION) -t taskboard:$(cat VERSION) .
 scripts/docker_build_benchmark.sh           # порівняння naive і multi-stage, перевірка образу
 ```
+
+## Docker Compose (робота №11)
+
+| Сервіс | Образ | Мережі | Роль |
+|--------|-------|--------|------|
+| reverse-proxy | nginx:1.27-alpine | frontend-net | зворотний проксі, єдиний вхід |
+| app-api | taskboard (етап production) | frontend-net, backend-net | API |
+| postgres-db | postgres:16-alpine | backend-net (internal) | БД |
+| redis-cache | redis:7-alpine | backend-net (internal) | кеш списку задач |
+| db-migrator | postgres:16-alpine | backend-net | одноразові SQL-міграції |
+| integration-tests | taskboard-tester (етап tester), профіль `ci` | frontend-net | інтеграційні тести через nginx |
+
+```bash
+docker compose up -d --build                     # розробка: compose.yaml + compose.override.yaml, http://localhost:8088/docs
+docker compose --profile debug up -d adminer     # Adminer: http://localhost:8089
+scripts/docker_compose_ci_runner.sh              # CI: compose.yaml + compose.ci.yaml, профіль ci
+```

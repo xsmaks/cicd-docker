@@ -60,3 +60,9 @@ def test_complete_task_and_stats(client):
 
 def test_unknown_task_returns_404(client):
     assert client.patch("/tasks/999999/done").status_code == 404
+
+
+@pytest.mark.skipif(not os.getenv("EXPECT_PROXY"), reason="API викликається напряму, без nginx")
+def test_requests_go_through_reverse_proxy(client):
+    resp = client.get("/health")
+    assert resp.headers.get("X-Proxy") == "taskboard-nginx"

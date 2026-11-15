@@ -1,0 +1,41 @@
+# Файл: compose.ci.yaml (оверлей безперервної інтеграції)
+# Запуск: docker compose -f compose.yaml -f compose.ci.yaml --profile ci ...
+services:
+  # БД у RAM (tmpfs) замість тома: дані живуть лише під час прогону
+  postgres-db:
+    volumes: !reset []
+    tmpfs:
+      - /var/lib/postgresql/data:rw,noexec,nosuid,size=256m
+
+  # жодних портів на хості: паралельні прогони не конфліктують
+  reverse-proxy:
+    ports: !reset []
+
+  app-api:
+    environment:
+      APP_ENV: "ci_integration_test"
+      CACHE_TTL: ${CACHE_TTL:-30}
+
+  # раннер інтеграційних тестів: образ етапу tester (pytest + тести), ходить до API через nginx
+  integration-tests:
+    build:
+      context: .
+      target: tester
+    image: taskboard-tester:${GIT_COMMIT:-local}
+    profiles: ["ci"]
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    volumes:
+      - ./build_artifacts:/app/build_artifacts
+    environment:
+      HOME: /tmp
+      BASE_URL: "http://reverse-proxy"
+      EXPECT_PROXY: "1"
+    depends_on:
+      reverse-proxy:
+        condition: service_healthy
+      db-migrator:
+        condition: service_completed_successfully
+    networks:
+      - frontend-net
+    command: ["pytest", "-v", "-p", "no:cacheprovider", "tests/integration",
+              "--junitxml=build_artifacts/junit-compose.xml"]

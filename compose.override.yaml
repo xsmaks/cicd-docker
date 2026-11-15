@@ -1,0 +1,30 @@
+# Файл: compose.override.yaml (локальна розробка; docker compose up підхоплює його автоматично)
+services:
+  reverse-proxy:
+    ports:
+      - "127.0.0.1:8088:80"          # API і Swagger UI: http://localhost:8088/docs
+
+  app-api:
+    environment:
+      CACHE_TTL: ${CACHE_TTL:-10}
+    develop:
+      watch:                          # docker compose watch: перезбірка образу при зміні коду
+        - action: rebuild
+          path: ./app
+        - action: rebuild
+          path: requirements.txt
+
+  # веб-адмінка БД лише на вимогу: docker compose --profile debug up -d
+  adminer:
+    image: adminer:4
+    profiles: ["debug"]
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres-db
+    ports:
+      - "127.0.0.1:8089:8080"
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    networks:
+      - backend-net
+      - frontend-net
