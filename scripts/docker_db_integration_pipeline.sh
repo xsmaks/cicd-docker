@@ -30,7 +30,7 @@ cleanup() {
         docker logs --tail 20 "${APP_CONTAINER}" 2>&1 || true
     fi
     echo "[CLEANUP] Зупинка та видалення тимчасових ресурсів Docker (${RUN_ID})..."
-    docker rm -f "${APP_CONTAINER}" "${DB_CONTAINER}" "${REDIS_CONTAINER}" >/dev/null 2>&1 || true
+    docker rm -f -v "${APP_CONTAINER}" "${DB_CONTAINER}" "${REDIS_CONTAINER}" >/dev/null 2>&1 || true
     docker network rm "${NETWORK_NAME}" >/dev/null 2>&1 || true
     echo "[CLEANUP] Оточення очищено."
 }
