@@ -1,0 +1,15 @@
+# Контекст збірки Task Board: лише код, тести і маніфести залежностей
+.git
+.gitignore
+**/__pycache__
+**/*.pyc
+.venv
+.pytest_cache
+.ruff_cache
+build_artifacts
+.env
+*.md
+Dockerfile*
+.dockerignore
+compose*.yaml
+scripts

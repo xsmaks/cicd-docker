@@ -1,0 +1,9 @@
+# Наївний одноступеневий образ (антипатерн для порівняння): повний python:3.12, компілятори,
+# увесь контекст разом із .git, кеш apt у шарі, процес від root
+FROM python:3.12
+WORKDIR /app
+COPY . .
+RUN apt-get update && apt-get install -y build-essential gcc
+RUN pip install -r requirements.txt
+EXPOSE 8000
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

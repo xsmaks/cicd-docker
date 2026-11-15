@@ -22,3 +22,15 @@ scripts/docker_db_integration_pipeline.sh   # PostgreSQL + Redis + API + інт�
 ```
 
 Результати (JUnit XML і JSON-звіт) з'являються в `build_artifacts/`.
+
+## Образ Docker (робота №10)
+
+`Dockerfile` має три іменовані етапи: `builder` (віртуальне оточення `/opt/venv`), `tester` (ruff і модульні
+тести під час збірки) і `production` (python:3.12.16-slim-trixie, користувач 10001, HEALTHCHECK, запуск у
+Exec-формі). `Dockerfile.naive` це навмисно наївний одноступеневий варіант для порівняння.
+
+```bash
+docker build --target production --build-arg GIT_COMMIT=$(git rev-parse --short HEAD) \
+    --build-arg APP_VERSION=$(cat VERSION) -t taskboard:$(cat VERSION) .
+scripts/docker_build_benchmark.sh           # порівняння naive і multi-stage, перевірка образу
+```
