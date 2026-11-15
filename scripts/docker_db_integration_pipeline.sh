@@ -73,8 +73,9 @@ docker run --rm --network "${NETWORK_NAME}" \
     -v "${PROJECT_DIR}/migrations:/migrations:ro" \
     -e PGPASSWORD="${DB_PASS}" \
     "${PG_IMAGE}" \
-    psql -h postgres-db -U "${DB_USER}" -d "${DB_NAME}" -v ON_ERROR_STOP=1 -q \
-         -f /migrations/001_create_tasks.sql -c "\dt"
+    psql -h postgres-db -U "${DB_USER}" -d "${DB_NAME}" -v ON_ERROR_STOP=1 -q -tA \
+         -f /migrations/001_create_tasks.sql \
+         -c "SELECT '  застосовано міграцію ' || version FROM schema_migrations"
 
 echo "[STEP 5] Запуск API Task Board (код примонтовано лише для читання)..."
 docker run -d --name "${APP_CONTAINER}" --network "${NETWORK_NAME}" --network-alias app-api \
