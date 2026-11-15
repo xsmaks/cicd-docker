@@ -32,7 +32,8 @@ docker run --rm \
         set -e
         echo "--- [Container] Середовище: $(python3 --version), ядро $(uname -r), uid $(id -u)"
         echo "--- [Container] Встановлення залежностей у /tmp/.local (кеш pip у томі) ---"
-        pip install --user --quiet --disable-pip-version-check -r requirements.txt -r requirements-dev.txt
+        pip install --user --quiet --disable-pip-version-check --no-warn-script-location \
+            --root-user-action=ignore -r requirements.txt -r requirements-dev.txt
         export PATH="/tmp/.local/bin:${PATH}"
         echo "--- [Container] Статичний аналіз коду (ruff) ---"
         ruff check --no-cache app tests

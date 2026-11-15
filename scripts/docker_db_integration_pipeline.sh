@@ -101,7 +101,8 @@ docker run --rm --network "${NETWORK_NAME}" \
     -e HOME=/tmp -e PYTHONDONTWRITEBYTECODE=1 \
     -e BASE_URL="http://app-api:8000" \
     "${PY_IMAGE}" \
-    sh -c 'pip install --user --quiet --disable-pip-version-check -r requirements-dev.txt \
+    sh -c 'pip install --user --quiet --disable-pip-version-check --no-warn-script-location \
+             --root-user-action=ignore -r requirements-dev.txt \
            && /tmp/.local/bin/pytest -q -p no:cacheprovider tests/integration \
               --junitxml=build_artifacts/junit-integration.xml'
 
